@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const { User } = require('../models/user');
-const {GenUserToken} = require("../utils/authorization");
+const {GenUserToken, GetUserAuthorization} = require("../utils/authorization");
 const { encrypt } = require("../utils/hashing");
 const { GenKey } = require("../utils/genKey");
 const mongoose = require('mongoose');
@@ -76,29 +76,22 @@ exports.signUp = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    const authorizationHeader = req.headers.get("authorization");
-    let token_data = await getAdminAuthorization(authorizationHeader);
-    
-    if (token_data.error_code > 0) {
-      return res.status(401).send({ message: "Unauthorized" });
-    }
-
 
     const user = await User.aggregate([
       { $match: { account_id: userId } }
     ]);
 
-    if (!user) {
+    if (user.length ===0) {
       return res.status(404).send('User not found');
     }
 
-    const profile_image = user.profile_image; 
+    const profile_image = user[0].profile_image; 
     const file = await gridFs.find({ filename: profile_image }).toArray();
     let userProfile = {
-      account_id: user.account_id,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name
+      account_id: user[0].account_id,
+      email: user[0].email,
+      first_name: user[0].first_name,
+      last_name: user[0].last_name
     };
 
     if (!file || file.length === 0) {
@@ -141,12 +134,12 @@ exports.editUserProfile = async (req, res) => {
       { $match: { account_id: userId } }
     ]);
 
-    if (!user) {
+    if (user.length > 0) {
       return res.status(404).send('User not found');
     }
    
     if (req.file) {
-      const existingFile = await gridFs.find({ filename: user.profile_image }).toArray();
+      const existingFile = await gridFs.find({ filename: user[0].profile_image }).toArray();
       if (existingFile.length > 0) {
         await gridFs.delete(existingFile[0]._id);
         console.log('Existing file deleted');
