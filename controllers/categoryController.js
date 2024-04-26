@@ -1,11 +1,19 @@
 const moment = require('moment');
 const { Category } = require('../models/categories');
 const { GenKey } = require("../utils/genKey");
-
+const {GenUserToken, GetUserAuthorization} = require("../utils/authorization");
 
 
 exports.createCategory = async (req, res) => {
     try {
+        const authorizationHeader =req.headers['authorization'];
+        if (!authorizationHeader) {
+          return res.status(401).send({ "msg": 'Authorization header missing' });
+        }
+        let token_data = await GetUserAuthorization(authorizationHeader);
+        if (token_data.error_code > 0) {
+          return   res.status(401).send({ "msg": 'Unautorized' });
+        }
         const category_obj = {
             category_id: await GenKey(10, "numeric"),
             created_at: moment().unix(),
@@ -22,6 +30,16 @@ exports.createCategory = async (req, res) => {
 
 exports.listCategory = async (req, res) => {
     try {
+        
+        const authorizationHeader =req.headers['authorization'];
+        if (!authorizationHeader) {
+          return res.status(401).send({ "msg": 'Authorization header missing' });
+        }
+        let token_data = await GetUserAuthorization(authorizationHeader);
+        if (token_data.error_code > 0) {
+          return   res.status(401).send({ "msg": 'Unautorized' });
+        }
+
         const categories = await Category.aggregate([
             { $match: {} }
         ]);

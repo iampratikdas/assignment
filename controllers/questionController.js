@@ -1,6 +1,7 @@
 const moment = require('moment');
 const { Questionare } = require('../models/questionare');
 const { Category } = require('../models/categories');
+const { GetUserAuthorization} = require("../utils/authorization");
 
 exports.createQuestion = async (req, res) => {
     try {
@@ -9,6 +10,16 @@ exports.createQuestion = async (req, res) => {
             category_id: req.body.category_id,
             question: req.body.question
         };
+
+        const authorizationHeader =req.headers['authorization'];
+        if (!authorizationHeader) {
+          return res.status(401).send({ "msg": 'Authorization header missing' });
+        }
+        let token_data = await GetUserAuthorization(authorizationHeader);
+        if (token_data.error_code > 0) {
+          return   res.status(401).send({ "msg": 'Unautorized' });
+        }
+
         const newQuestion = new Questionare(question_obj);
         await newQuestion.save();
         res.status(200).json({ "msg": "New newQuestion Created" });
@@ -19,6 +30,16 @@ exports.createQuestion = async (req, res) => {
 
 exports.listQuestions = async (req, res) => {
     try {
+
+        const authorizationHeader =req.headers['authorization'];
+        if (!authorizationHeader) {
+          return res.status(401).send({ "msg": 'Authorization header missing' });
+        }
+        let token_data = await GetUserAuthorization(authorizationHeader);
+        if (token_data.error_code > 0) {
+          return   res.status(401).send({ "msg": 'Unautorized' });
+        }
+
         let questionlist_categories = await Category.aggregate([
             {
                 $lookup: {
@@ -38,6 +59,16 @@ exports.listQuestions = async (req, res) => {
 exports.addBulkQuestion = async (req, res) => {
 
     try {
+
+        const authorizationHeader =req.headers['authorization'];
+        if (!authorizationHeader) {
+          return res.status(401).send({ "msg": 'Authorization header missing' });
+        }
+        let token_data = await GetUserAuthorization(authorizationHeader);
+        if (token_data.error_code > 0) {
+          return   res.status(401).send({ "msg": 'Unautorized' });
+        }
+
         if (!req.file) {
             return res.status(400).send('No file has been uploaded.');
         }
