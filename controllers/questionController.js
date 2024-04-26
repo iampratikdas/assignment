@@ -55,7 +55,7 @@ exports.addBulkQuestion = async (req, res) => {
             return res.status(400).json({ error: 'Invalid CSV format. Header should include "category_id" and "question".' });
         }
         
-        
+        // it taking all the row asynchronously and depending upon the condition it is inserting in the collection 
         await Promise.all(lines.slice(1).map(async line => {
             const [category_id, question] = line.split(',').map(item => item.trim());
             if (category_id && question) {
