@@ -1,4 +1,3 @@
-// userController.js
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const { User } = require('../models/user');
@@ -7,11 +6,12 @@ const { encrypt } = require("../utils/hashing");
 const { GenKey } = require("../utils/genKey");
 const mongoose = require('mongoose');
 const { connectDB } = require('../utils/connectDb');
+const {Config} = require('../utils/config')
 
 let gridFs;
 connectDB.once('open', () => {
   gridFs = new mongoose.mongo.GridFSBucket(connectDB.db, {
-    bucketName: 'uploads'
+    bucketName: Config.mongodb_bucket
   });
 });
 
@@ -28,7 +28,6 @@ exports.login = async (req, res) => {
     let token = await GenUserToken(user, moment().unix());
     res.status(200).json({  user_details: user , token: token});
   } catch (error) {
-    console.log("error===>", error);
     res.status(500).send('Error logging in');
   }
 };
@@ -67,7 +66,6 @@ exports.signUp = async (req, res) => {
     await newUser.save();
     res.status(200).json({ "msg": "New User Created", upload_status });
   } catch (error) {
-    console.log(error)
     res.status(500).send({ "msg": 'Error Sign Up in/Internal Server Error' });
   }
 }
@@ -75,7 +73,6 @@ exports.signUp = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log("userId===>", userId)
 
     const user = await User.aggregate([
       { $match: { account_id: userId } }
@@ -85,7 +82,6 @@ exports.getUserProfile = async (req, res) => {
       return res.status(404).send('User not found');
     }
 
-    // Fetch profile image from GridFS using profile_image_id
     const profile_image = user.profile_image; 
     const file = await gridFs.find({ filename: profile_image }).toArray();
     let userProfile = {
@@ -141,7 +137,6 @@ exports.editUserProfile = async (req, res) => {
    
     if (req.file) {
       const existingFile = await gridFs.find({ filename: user.profile_image }).toArray();
-      console.log("existingFile[0]===>", existingFile[0])
       if (existingFile.length > 0) {
         await gridFs.delete(existingFile[0]._id);
         console.log('Existing file deleted');

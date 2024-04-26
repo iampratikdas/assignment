@@ -22,7 +22,7 @@ exports.listQuestions = async (req, res) => {
         let questionlist_categories = await Category.aggregate([
             {
                 $lookup: {
-                    from: "questionares", 
+                    from: "questionares",
                     localField: "category_id",
                     foreignField: "category_id",
                     as: "questions",
@@ -36,7 +36,6 @@ exports.listQuestions = async (req, res) => {
 }
 
 exports.addBulkQuestion = async (req, res) => {
-    console.log("files===>", req.file)
 
     try {
         if (!req.file) {
@@ -46,25 +45,47 @@ exports.addBulkQuestion = async (req, res) => {
         if (req.file.mimetype !== 'text/csv') {
             return res.status(400).send('File type is not CSV.');
         }
-
-        const results = [];
-
-        //Here  Parsing the CSV file
-        req.file.buffer
-            .toString('utf8')
-            .split('\n')
-            .slice(1) 
-            .forEach(line => {
-                const [category_id, question] = line.split(',').map(item => item.trim());
-                if (category_id && question) {
+        let results = [];
+        const lines = req.file.buffer.toString('utf8').split('\n');
+        const header = lines[0].split(',').map(item => item.trim());
+        const expectedHeader = ['category_id', 'question'];
+        
+        // Check if the header of the file has the expected one or not
+        if (!arraysEqual(header, expectedHeader)) {
+            return res.status(400).json({ error: 'Invalid CSV format. Header should include "category_id" and "question".' });
+        }
+        
+        
+        await Promise.all(lines.slice(1).map(async line => {
+            const [category_id, question] = line.split(',').map(item => item.trim());
+            if (category_id && question) {
+                // Check if the category_id existing or not
+                const categoryExists = await Category.findOne({ category_id: category_id });
+                if (categoryExists != null) {
                     results.push({ category_id, question });
+                } else {
+                    console.log(`Category with ID ${category_id} does not exist. Skipping...`);
                 }
-            });
-        await Questionare.insertMany(results);
+            }
+        }));
 
-        res.status(200).send({'msg':'Questions added successfully.'});
+        if (results.length > 0) {
+            await Questionare.insertMany(results);
+            res.status(200).send({ 'msg': 'Questions added successfully.' });
+        } else {
+            res.status(200).send({ 'msg': 'No Questions are added.' });
+        }
+        
     } catch (err) {
         console.log('error===>', err);
         res.status(500).send('Internal Server Error');
     }
+}
+
+function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
 }

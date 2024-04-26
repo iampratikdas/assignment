@@ -1,5 +1,4 @@
 const moment = require('moment');
-const { Questionare } = require('../models/questionare');
 const { Category } = require('../models/categories');
 const { GenKey } = require("../utils/genKey");
 
