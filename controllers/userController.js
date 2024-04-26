@@ -134,7 +134,7 @@ exports.editUserProfile = async (req, res) => {
       { $match: { account_id: userId } }
     ]);
 
-    if (user.length > 0) {
+    if (user.length === 0) {
       return res.status(404).send('User not found');
     }
    
