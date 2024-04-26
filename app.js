@@ -19,12 +19,14 @@ app.use(upload.single('file'));
 
 app.use(function (req, res, next) {
   const authorizationHeader = req.headers['authorization'];
-  console.log("path==>", req.path)
-
   if (!authorizationHeader) {
-    res.send({ "msg": "Please log in" })
+    if ( req.path === '/api/user/login' ){
+      next();
+    }else{
+      res.send({ "msg": "Please log in" })
+    }
   } else {
-    if (req.path === '/api/user/profile/:id' || req.path === '/api/category/list' || req.path === '/api/category/create' || req.path === '/api/question/create' || req.path === '/api/question/list' || req.path === '/api/question/addbulkquestion') {
+    if ( req.path === '/api/category/list' || req.path === '/api/category/create' || req.path === '/api/question/create' || req.path === '/api/question/list' || req.path === '/api/question/addbulkquestion') {
       next();
     }
   }

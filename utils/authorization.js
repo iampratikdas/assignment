@@ -19,3 +19,14 @@ exports.GenUserToken = async function(user, creationUpdationTime) {
     throw new Error('Error generating user token: ' + error.message);
   }
 }
+
+exports.GetUserAuthorization =  async function (auth_header) {
+  const auth_token = (auth_header || "").split("Bearer ").at(1);
+  let token_data;
+  try{
+    token_data = jwt.verify(auth_token, Config.jwt_secret_user);
+  } catch (e) {
+  	return {error_code: 1001, message: 'ERROR: Authentication failed.'}
+  }
+  return token_data;
+}

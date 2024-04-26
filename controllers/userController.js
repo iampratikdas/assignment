@@ -76,6 +76,13 @@ exports.signUp = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.params.id;
+    const authorizationHeader = req.headers.get("authorization");
+    let token_data = await getAdminAuthorization(authorizationHeader);
+    
+    if (token_data.error_code > 0) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+
 
     const user = await User.aggregate([
       { $match: { account_id: userId } }
