@@ -1,12 +1,12 @@
 # Assignment App
 
 # About The Project
-This project involves adding new category and with relative questions can be added. A series of Api has been written in order to seamless workflow for a user to signup , login. The user can also update its own profle with image well. A series of categories can be added with relative to its question. Bulk questions can be added with unique categories as well.
+This project involves adding new category and with relative questions can be added. A series of API has been written in order to seamless workflow for a user to signup , login. The user can also update its own profile with image as well. A series of categories can be added with relative to its question. Bulk questions can be added with unique categories as well.
 
 # Some Critical cases taken care of:
-1> if a user want to add questions in a bulk . He /She can do that , but if the file is old or if it is not matching with required csv file , then it will block and it will stop inserting.
-2> if and only if the category ids matching then only it will create questions.
-3> once get logged in token will be provided to the user. in order to authenticate.
+1 - if a user want to add questions in a bulk . He /She can do that , but if the file is old or if it is not matching with required csv file , then it will block and it will stop inserting.
+2 - if and only if the category ids matching then only it will create questions.
+3 - once get logged in token will be provided to the user. in order to authenticate.
 
 # Built With:
 Javascript
@@ -19,14 +19,14 @@ Mongodb
 This is an example of how you may give instructions on setting up your project locally. To get a local copy up and running follow these simple example steps.
 
 # Prerequisites
-
+Node js and MongoDb must be installed
 npm install npm@latest -g
 
 # Installation
-1> Clone the Repo
+1 - Clone the Repo
 git clone https://github.com/iampratikdas/assignment.git .
 
-2> install packages
+2 - install packages
 npm install
 
 # env 
