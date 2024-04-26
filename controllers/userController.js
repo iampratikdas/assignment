@@ -76,7 +76,14 @@ exports.signUp = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-
+    const authorizationHeader =req.headers['authorization'];
+    if (!authorizationHeader) {
+      return res.status(401).send({ "msg": 'Authorization header missing' });
+    }
+    let token_data = await GetUserAuthorization(authorizationHeader);
+    if (token_data.error_code > 0) {
+      return   res.status(401).send({ "msg": 'Unautorized' });
+    }
     const user = await User.aggregate([
       { $match: { account_id: userId } }
     ]);
@@ -124,6 +131,15 @@ exports.editUserProfile = async (req, res) => {
   const userId = req.params.id;
   let request_body = req.body;
   request_body.updated_at = moment().unix();
+  
+  const authorizationHeader =req.headers['authorization'];
+  if (!authorizationHeader) {
+    return res.status(401).send({ "msg": 'Authorization header missing' });
+  }
+  let token_data = await GetUserAuthorization(authorizationHeader);
+  if (token_data.error_code > 0) {
+    return   res.status(401).send({ "msg": 'Unautorized' });
+  }
 
   if (request_body.password) {
     request_body.password = await encrypt(req.body.password)
