@@ -108,7 +108,6 @@ exports.addBulkQuestion = async (req, res) => {
         }
         
     } catch (err) {
-        console.log('error===>', err);
         res.status(500).send('Internal Server Error');
     }
 }

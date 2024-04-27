@@ -30,7 +30,6 @@ exports.login = async (req, res) => {
     let token = await GenUserToken(user[0], moment().unix());
     res.status(200).json({  user_details: user[0] , token: token});
   } catch (error) {
-    console.log("user===>", error)
     res.status(500).send('Error logging in');
   }
 };
@@ -131,7 +130,7 @@ exports.editUserProfile = async (req, res) => {
   const userId = req.params.id;
   let request_body = req.body;
   request_body.updated_at = moment().unix();
-  
+
   const authorizationHeader =req.headers['authorization'];
   if (!authorizationHeader) {
     return res.status(401).send({ "msg": 'Authorization header missing' });
