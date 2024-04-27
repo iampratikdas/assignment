@@ -12,16 +12,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-app.use((req,res, next)=>{
-  let authorization = req.get('Authorization');
-  if(req.path == '/api/user/login' && !authorization){
-    next();
-  }else if(authorization){
-    next();
-  }else{
-    res.send({"msg": "Please Log in first"})
-  }
-})
+
 
 
 // Middleware 
